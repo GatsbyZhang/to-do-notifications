@@ -26,16 +26,17 @@ var submit = document.getElementById('submit');
 
 window.onload = function() {
   note.innerHTML += '<li>App initialised.</li>';
-  // In the following line, you should include the prefixes of implementations you want to test.
+  // In the following line, you should include the prefixes of implementations you want to test.浏览器兼容
   window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
-  // DON'T use "var indexedDB = ..." if you're not in a function.
+  // DON'T use "var indexedDB = ..." if you're not in a function.？？？？
   // Moreover, you may need references to some window.IDB* objects:
+      //这个IDBTransaction接口定义访问方式
   window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
   window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
   // (Mozilla has never prefixed these objects, so we don't need window.mozIDB*)
 
 
-  // Let us open our database
+  // Let us open our database ，使用indexedDB的open()方法创建数据库，设置版本号为4
   var DBOpenRequest = window.indexedDB.open("toDoList", 4);
    
   // Gecko-only IndexedDB temp storage option:
@@ -71,7 +72,7 @@ window.onload = function() {
     
     var objectStore = db.createObjectStore("toDoList", { keyPath: "taskTitle" });
     
-    // define what data items the objectStore will contain
+    // define what data items the objectStore will contain引用对象存储空间，然后调用createIndex()方法就可以创建索引
     
     objectStore.createIndex("hours", "hours", { unique: false });
     objectStore.createIndex("minutes", "minutes", { unique: false });
@@ -92,13 +93,13 @@ window.onload = function() {
     // Open our object store and then get a cursor list of all the different data items in the IDB to iterate through
     var objectStore = db.transaction('toDoList').objectStore('toDoList');
     objectStore.openCursor().onsuccess = function(event) {
-      var cursor = event.target.result;
-        // if there is still another cursor to go, keep runing this code
+      var cursor = event.target.result;//取得存储空间中的下一个对象
+        
         if(cursor) {
           // create a list item to put each data item inside when displaying it
           var listItem = document.createElement('li');
           
-          // check which suffix the deadline day of the month needs
+          //cursor.value代表对象实例，根据对象实例的day属性确定后缀
           if(cursor.value.day == 1 || cursor.value.day == 21 || cursor.value.day == 31) {
             daySuffix = "st";
           } else if(cursor.value.day == 2 || cursor.value.day == 22) {
